@@ -1,0 +1,13 @@
+{
+	"folders":
+	[
+		{
+			"path": "/home/shubhu/Desktop/flaskWebsite"
+		}
+	],
+	"settings": {
+        // ...
+        "python_interpreter_path": "/home/shubhu/Desktop/flaskWebsite/flask/bin/python"
+    }
+
+}

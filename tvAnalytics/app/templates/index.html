@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if g.user %}
+  <p>
+    Hello {{ g.user.name }}!
+    <br>
+    List of Tv Series that you have are :-
+    <br>
+    <ul>
+    	{% for show in g.user.series.split(',') %}
+    		<li> <a href="/searchSeries?seriesName={{show}}">{{show}}</a></li>
+  		{% endfor %}
+    </ul>
+  {% endif %}
+  <p>
+    This is just an example page so that something is here.
+{% endblock %}

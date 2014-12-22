@@ -1,0 +1,306 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+{% block head %}
+<style> 
+path {
+	stroke: steelblue;			/* the line colour for paths is steelblue */
+	stroke-width: 5;			/* the line width for paths is 2 pixels */
+	fill: none;					/* don't fill the area bounded by any path elements */
+}
+
+
+.axis path,
+.axis line {
+	fill: none;					/* don't fill areas bounded by the axis line */
+	stroke: grey;				/* make the axis line grey */
+	stroke-width: 1;			/* make the width of the axis lines 1 pixel */
+	shape-rendering: crispEdges;/* make the edges sharp */
+}
+div.tooltip {
+	position: absolute;
+	text-align: center;
+	width: 150px;
+	height: 50px;
+	padding: 2px;
+	font: 12px sans-serif;
+	background: lightsteelblue;
+	border: 0px;
+	border-radius: 8px;
+	pointer-events: none;
+}
+.chartCSS{
+	background: url(./static/assets/darkbg.jpg) no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	color:#eee;
+	overflow:hidden;
+	height:100vh; 
+	width: 100%;
+	-webkit-font-smoothing: antialiased;
+	-webkit-overflow-scrolling: touch;
+
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<div id="chart" class="chartCSS">
+	<svg id="lineChart" class="chartCSS"></svg>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+</div>
+
+<script>
+//Setting the colors to be used for data points
+var colors = ["#79e6f2","#f2da79","#b779f2","#79f294","#f27981","#79a4f2","#c8f279","#f279eb","#79f2d5","#f2b279"];
+
+//Helper function for processing episode number Strings
+function processEpisodeNumbers(str)
+{
+	return (parseInt(str[0])*100+parseInt(str[1]))/100;
+}
+
+
+var	margin = {top: 100, right: 20, bottom: 100, left: 50},
+	width = parseInt(d3.select("#lineChart").style("width")) - margin.left - margin.right,
+	height = parseInt(d3.select("#lineChart").style("height")) - margin.top - margin.bottom;				
+
+var xScale = d3.scale.linear().range([0,width]);
+var	yScale = d3.scale.linear().range([height, 0]);
+
+var	xAxis = d3.svg.axis().scale(xScale)
+						.orient("bottom");								
+var	yAxis = d3.svg.axis().scale(yScale)
+						.orient("left");		
+
+//Setting the line points according to the xScale, yScale scaling factors
+var	valueline = d3.svg.line()
+					.interpolate("cardinal")
+					.x(function(d) { return xScale(d.key1); })
+					.y(function(d) { return yScale(d.value.episodeRating); });
+
+
+//Appending tooltip to the body.
+var div = d3.select("body").append("div")
+						.attr("class", "tooltip")
+						.style("opacity", 0);
+
+var	lineChart = d3.select("#lineChart")
+				//.append("svg")
+				//.attr("width", width + margin.left + margin.right)	// Set the 'width' of the svg element
+				//.attr("height", height + margin.top + margin.bottom)// Set the 'height' of the svg element
+				.append("g")								// Append 'g' to the html 'body' of the web page
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
+
+
+// Get the data
+d3.json("{{ url_for('static',filename=showName)}}", function(error, data) {
+	data = d3.entries(data);
+
+	//For each data point, generate its key(which will be episode number) and its corresponding color.
+	data.forEach(function(d){
+		d.key = processEpisodeNumbers(d.value.episode.replace(/\D/g,' ').trim().split(/\s+/));
+		d.value.colors = colors[(~~d.key)%10]
+	});
+
+	console.log(data);
+	
+	data = data.sort(function(a, b) {
+		return d3.ascending(a.key, b.key);
+	});
+
+
+	data.forEach(function(d){
+		d.key1 = data.indexOf(d)+1;
+	});
+	
+	
+	data.forEach(function(d) {
+		//d.episode = d.episode.replace(/\D/g,'');
+		d.value.episodeRating = +d.value.episodeRating;									
+		console.log(d.key1+"    "+d.value.episodeRating);
+	});
+
+	// Scale the range of the data
+	xScale.domain(d3.extent(data, function(d) { return d.key1; }));
+	yScale.domain(
+		[
+			d3.min(data,function(d){return d.value.episodeRating;}), 
+			d3.max(data, function(d) { return d.value.episodeRating; })
+		]
+	);	
+	//xAxis.tickValues(data.map(function(d) { return d.key1;}))
+	
+
+	// Add the valueline path.
+	lineChart.append("path")// append the valueline line to the 'path' element
+			.attr("class", "line")// apply the 'line' CSS styles to this path
+			.attr("d", valueline(data));// call the 'valueline' finction to draw the line
+	
+	
+	//Create Circles for data points and attach tooltip on mousehover event
+	//Attach click event to circles which will take us to a online video streaming link
+	lineChart.selectAll("dot")
+			.data(data)
+			.enter().append("circle")
+			.attr("class","dot")
+			.attr("r", 4)
+			.attr("cx", function(d) { return xScale(d.key1); })
+			.attr("cy", function(d) { return yScale(d.value.episodeRating); })
+			.style("fill", function(d) { return d.value.colors; })
+			
+			.on("mouseover", function(d) {
+				d3.select(this).transition().attr("r",6);
+				div.transition()
+				.duration(200)
+				.style("opacity", .9);
+				
+				div	.html(d.value.episode + "<br/>"  + "Votes: "+(''+d.value.votes)+"<br/>"+"Episode Rating: "+''+d.value.episodeRating)
+					
+					.style("left", (d3.event.pageX+10) + "px")
+					.style("top", (d3.event.pageY - 28) + "px");
+			})
+			
+			.on("mouseout", function(d) {
+				d3.select(this).transition().attr("r",4);
+				
+				div.transition()
+				.duration(500)
+				.style("opacity", 0);
+			})
+
+			.on("click", function(d) {
+				//console.log(d);
+				if(event.which == 1) { // left click
+					window.open(d.value.videoLink,'_newtab');
+				}
+			});
+			
+	// Add the X Axis
+	lineChart.append("g")// append the x axis to the 'g' (grouping) element
+			.attr("class", "x axis")// apply the 'axis' CSS styles to this path
+			.attr("transform", "translate(0," + height + ")")	// move the drawing point to 0,height
+			.call(xAxis)// call the xAxis function to draw the axis
+			.selectAll("text")
+			.style("text-anchor", "end")
+			.attr("dx", "-.8em")
+			.attr("dy", ".15em")
+			//.attr("transform","rotate(-65)"); //function(d) {
+			//	return "rotate(-65)";
+			//});
+
+	//Attach xAxis title
+	lineChart.append("text")
+			.attr("class","xAxisTitle")
+			.attr("x",width/2)
+			.attr("y",height+margin.bottom)
+			.style("text-anchor","middle")
+			.text("Episode Number");
+
+
+	//Attach yAxis
+	lineChart.append("g")// append the y axis to the 'g' (grouping) element
+			.attr("class", "y axis")// apply the 'axis' CSS styles to this path
+			.call(yAxis);// call the yAxis function to draw the axis
+
+
+	//Attach yAxis title		
+	lineChart.append("text")
+		.attr("class","yAxisTitle")
+		.attr("transform","rotate(-90)")
+		.attr("y",0-margin.left)
+		.attr("x",0-(height/2))
+		.attr("dy","1em")
+		.style("text-anchor","middle")
+		.text("Episode Rating");
+
+
+
+	//Attach Chart Title
+	lineChart.append("text")
+		.attr("x", (width / 2))
+		.attr("y", 0 - (margin.top / 2))
+		.attr("text-anchor", "middle")
+		.style("font-size", "16px")
+		.style("text-decoration", "bold")
+		.text("IMDB Rating of episodes");
+
+
+	//This function recalibrates the chart based on the change in the browser window size
+	function resize() {
+		var win = window,
+		doc = document,
+		e = doc.documentElement,
+		g = doc.getElementsByTagName('body')[0],
+		baseWidth = doc.getElementById("lineChart").clientWidth || win.innerWidth || e.clientWidth || g.clientWidth,
+		baseHeight = doc.getElementById("lineChart").clientHeight || win.innerHeight|| e.clientHeight|| g.clientHeight;
+		
+		var width = 0.75*baseWidth+ margin.left + margin.right,
+		height = baseHeight- margin.top - margin.bottom;
+	
+
+		/* Update the range of the scale with new width/height */
+		xScale.range([0, width]);
+		yScale.range([height, 0]).nice();
+	
+
+		/* Update the axis with the new scale */
+		xAxis.ticks(Math.max(width/50, 2));
+		yAxis.ticks(Math.max(height/50, 2));
+			
+	
+		/* Force D3 to recalculate and update the line, circles, xAxis, yAxis, xAxisTitle and yAxisTitle */
+		lineChart.select('.x.axis')
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis);
+
+		lineChart.select('.y.axis')
+			.attr("y",0-margin.left)
+			.attr("x",0-(height/2))
+			.call(yAxis);
+		
+		
+		lineChart.selectAll('.line')
+			.transition()
+			.attr("d", valueline(data))
+			.duration(1000)
+			.ease('linear');
+		
+		lineChart.selectAll('circle')
+			.transition()
+			.attr("cx", function(d) { return xScale(d.key1); })
+			.attr("cy", function(d) { return yScale(d.value.episodeRating); })
+			.duration(1000)
+			.ease('linear');
+		
+		lineChart.select(".xAxisTitle")
+			.transition()
+			.attr("x",width/2)
+			.attr("y",height+margin.bottom/2)
+			.duration(1000)
+			.ease('linear');
+
+		lineChart.select(".yAxisTitle")
+			.transition()
+			.attr("y",0-margin.left)
+			.attr("x",0-(height/2))
+			.duration(1000)
+			.ease('linear');
+	}
+	
+	
+	//Call the resize function once the page is ready
+	var checkLoad = function() {
+		document.readyState !== "complete" ? setTimeout(checkLoad,11) : resize();
+	};
+
+	d3.select(window).on('resize', checkLoad);
+	resize();
+	
+});
+</script>
+</div>
+{% endblock %}

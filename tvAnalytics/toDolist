@@ -1,0 +1,12 @@
+1. Create a login system for the user
+2. Get user's favorite shows - ones that he is currently watching
+3. Get release dates of those shows
+4. Get the probabilistic rating of those shows
+5. Display
+
+
+1. Create a login system
+	- Openid or base login? - Openid - done
+	- Create a db to store all of these user info - done
+	- Get user's profile info - done
+	- Create a db to store their preferences(expand later)
