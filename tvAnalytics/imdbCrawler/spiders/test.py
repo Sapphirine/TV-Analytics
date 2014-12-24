@@ -17,7 +17,7 @@ class MySpider(CrawlSpider):
     def __init__(self, category): 
     	super(MySpider, self).__init__(category) 
     	category = category.strip().replace(" ","%20")
-    	self.start_urls = ['http://www.imdb.com/search/title?colors=color&has=asin-dvd-us&languages=en&title=%s&title_type=tv_series' %category] # urls from which the spider will start crawling
+    	self.start_urls = ['http://www.imdb.com/search/title?colors=color&languages=en&title=%s&title_type=tv_series' %category] # urls from which the spider will start crawling
     
     def parse(self,response):
         hxs = Selector(response)

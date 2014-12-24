@@ -27,7 +27,9 @@ class nextepisodeItem(Item):
     season = Field()
     episode = Field()
     airDate = Field()
-
+    seriesName = Field()
+    episodeName = Field()
+    
 class nxt_episode_data(Item):
     director = Field()
     writers = Field()

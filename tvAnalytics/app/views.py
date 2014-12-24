@@ -183,7 +183,7 @@ def edit_profile():
 def logout():
     session.pop('openid', None)
     flash(u'You have been signed out')
-    return redirect(oid.get_next_url())
+    return redirect('/')
 
 
 

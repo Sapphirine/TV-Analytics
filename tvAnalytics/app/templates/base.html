@@ -31,14 +31,15 @@ The base template which is used by every page in the website. Contains the heade
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand smoothScroll" href="#">TV Analytics</a>
+          <a class="navbar-brand smoothScroll" href="{{ url_for('index') }}">TV Analytics</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('index') }}">Overview</a>
-            {% if g.user %}
-            <li><a href="{{ url_for('edit_profile') }}">Profile</a>
+            
             <li><a href="{{ url_for('recommendation') }}">Upcoming Episodes</a>
+            {% if g.user %}
+            <li><a href="{{ url_for('edit_profile') }}">Add Shows</a>
+            
             <li><a href="{{ url_for('logout') }}">Sign Out [{{ g.user.name }}]</a>
             {% else %}
             <li><a href="{{ url_for('login') }}">Sign In</a>
@@ -52,15 +53,7 @@ The base template which is used by every page in the website. Contains the heade
     <br>
     <br><br>
     {% block content %}{% endblock %}
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+    
 
   </body>
   </html>

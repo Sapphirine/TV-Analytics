@@ -3,11 +3,11 @@
 <br>
 <br>
 <br>
-  <h2>Sign in</h2>
-  <form action="" method=post>
+  <h3 style="text-align:center">Sign in</h3>
+  <form action="" method=post style="text-align:center">
     {% if error %}<p class=error><strong>Error:</strong> {{ error }}</p>{% endif %}
     <p>
-      <input type=submit value="Sign in with Google">
+    	<input type=image src={{url_for('static',filename='assets/gsignin.png')}} alt="Submit" style>
       <input type=hidden name=next value="{{ next }}">
   </form>
 {% endblock %}

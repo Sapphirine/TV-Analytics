@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Edit Profile</h2>
+  <h3>Add Shows</h3>
   <form action="" method=post>
     <dl>
       <dt>Name:
@@ -9,17 +9,20 @@
       <dd>{{ form.email }}
       <dt>Series: <br>
         <ul>
+        {% if g.user.series %}
         {% for show in g.user.series.split(',') %}
-          <li> <button value='{{show}}' name='remove'> - </button> {{show}} </li>
+          <li> <button value='{{show}}' name='remove' style='color:#000'> - </button> {{show}} </li>
         {% endfor %}
+        {% endif %}
         {% if error_msg %}
         <br>  {{error_msg}} <br>
         {% endif %}
-      <input type=text name=series size=50 value="{{ form.series }}"> <input type=submit value="+">
+      <input type=text name=series size=50 value="{{ form.series }}" style='color:#000'>
+      <input type=submit value="+" style='color:#000'>
     </ul>
     </dl>
 
     <p>  
-      <input type=submit name=delete value="Delete Profile">
+      <input type=submit name=delete value="Delete Profile" style='color:#000'>
   </form>
 {% endblock %}
