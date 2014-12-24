@@ -178,6 +178,7 @@ def edit_profile():
     return render_template('edit_profile.html', form=form)
 
 
+
 @app.route('/logout')
 def logout():
     session.pop('openid', None)
@@ -200,15 +201,15 @@ def searchSeries():
 
     message[1] = message[1]+".json"
     ESQuery = dict()
-    ESQuery['fields'] = ["seasonNo","episodeNo","episodeRating"] 
     q = dict() 
     q['match'] = {'showName': request.args['seriesName']}
     ESQuery['size'] = 1000 
     ESQuery['query'] = q
-
-    showExists =  os.path.isfile(os.getcwd()+"/app/static/"+message[1])
+    
+    showExists =  addshowclient.addshowclient(request.args['seriesName'])
     res = requests.post('http://localhost:9200/tvshows/_search',json.dumps(ESQuery))
     res = res.json()
+    
     #if show file exists, then use that file otherwise use scrapy to generate the json and then use that
     if showExists:
         return render_template("generateChart.html",showName = message[1],esdata = str(json.dumps(res)))
@@ -217,6 +218,15 @@ def searchSeries():
         #Respond with try again later
         return render_template("generateChart.html",showName = message[1],esdata = str(json.dumps(res)))
 
+
+@app.route('/recommendation', methods=['GET', 'POST'])
+def recommendation():
+    """give recommendations"""
+    
+    ESQuery =  json.loads('{  "query":  {  "range" : {  "airDate" : {  "gte": "now" }   }  }, "size":1000  }')
+    res = requests.post('http://localhost:9200/tvshows/_search',json.dumps(ESQuery))
+    res = res.json()
+    return render_template('recommendation.html', shows=str(json.dumps(res)))
 
 
 

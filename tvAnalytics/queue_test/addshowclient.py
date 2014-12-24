@@ -11,10 +11,11 @@ def addshowclient(showname):
 	exists = True if r['count'] > 0 else False
 	if exists:
 		print "Exists"
-		return
+		return True
 	else:
 		subprocess.Popen(['beanstalkd','-l','127.0.0.1','-p','14711'])
 		beanstalk = beanstalkc.Connection(host='localhost', port=14711)
 		beanstalk.use('addshow')
 		beanstalk.put(showname)
+		return False
 

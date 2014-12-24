@@ -94,34 +94,43 @@ var	lineChart = d3.select("#lineChart")
 				//.attr("height", height + margin.top + margin.bottom)// Set the 'height' of the svg element
 				.append("g")								// Append 'g' to the html 'body' of the web page
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")"); 
-
+var data1 = {{ esdata|safe }};
 
 // Get the data
-d3.json("{{ url_for('static',filename=showName)}}", function(error, data) {
-	data = d3.entries(data);
-
+	
 	//For each data point, generate its key(which will be episode number) and its corresponding color.
-	data.forEach(function(d){
-		d.key = processEpisodeNumbers(d.value.episode.replace(/\D/g,' ').trim().split(/\s+/));
-		d.value.colors = colors[(~~d.key)%10]
-	});
+	
+	var data=[];
+	//console.log(data1);
+	if (data1.hits.total>0){
 
-	console.log(data);
+		data1.hits.hits.forEach(function(d) {
+			var temp = {
+				"key" : (d._source.seasonNo*100+d._source.episodeNo)/100,
+				"value" : d._source
+			}
+			temp.value.colors = colors[(~~d.key)%10];
+			data.push(temp);
+		});
+	}
 	
 	data = data.sort(function(a, b) {
 		return d3.ascending(a.key, b.key);
 	});
 
 
+	
 	data.forEach(function(d){
 		d.key1 = data.indexOf(d)+1;
 	});
 	
 	
+	
+
 	data.forEach(function(d) {
 		//d.episode = d.episode.replace(/\D/g,'');
 		d.value.episodeRating = +d.value.episodeRating;									
-		console.log(d.key1+"    "+d.value.episodeRating);
+		//console.log(d.key1+"    "+d.value.episodeRating);
 	});
 
 	// Scale the range of the data
@@ -140,7 +149,7 @@ d3.json("{{ url_for('static',filename=showName)}}", function(error, data) {
 			.attr("class", "line")// apply the 'line' CSS styles to this path
 			.attr("d", valueline(data));// call the 'valueline' finction to draw the line
 	
-	
+	console.log(data);
 	//Create Circles for data points and attach tooltip on mousehover event
 	//Attach click event to circles which will take us to a online video streaming link
 	lineChart.selectAll("dot")
@@ -300,7 +309,6 @@ d3.json("{{ url_for('static',filename=showName)}}", function(error, data) {
 	d3.select(window).on('resize', checkLoad);
 	resize();
 	
-});
 </script>
 </div>
 {% endblock %}

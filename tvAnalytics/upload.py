@@ -28,4 +28,7 @@ def uploadtoES(filename):
 		success, _ = bulk(es, data, index='tvshows', raise_on_error=True)
 		print('Performed %d actions' % success)
 
+uploadtoES("./app/static/30_rock.json")
+uploadtoES("./app/static/how_i_met_your_mother.json")
 uploadtoES("./app/static/the_mentalist.json")
+uploadtoES("./app/static/breaking_bad.json")

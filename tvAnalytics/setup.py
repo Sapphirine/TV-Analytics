@@ -20,3 +20,6 @@ subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'flask-whooshalch
 subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'flask-wtf'])
 subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'flask-babel'])
 subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'flup'])
+subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'requests'])
+subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'beanstalkc'])
+subprocess.call([os.path.join('flask', bin, 'pip'), 'install', 'elasticsearch'])

@@ -1,25 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Edit Profile</h2>
-  <form action="" method=post>
-    <dl>
-      <dt>Name:
-      <dd>{{ form.name }}
-      <dt>E-Mail
-      <dd>{{ form.email }}
-      <dt>Series: <br>
-        <ul>
-        {% for show in g.user.series.split(',') %}
-          <li> <button value='{{show}}' name='remove'> - </button> {{show}} </li>
-        {% endfor %}
-        {% if error_msg %}
-        <br>  {{error_msg}} <br>
-        {% endif %}
-      <input type=text name=series size=50 value="{{ form.series }}"> <input type=submit value="+">
-    </ul>
-    </dl>
-
-    <p>  
-      <input type=submit name=delete value="Delete Profile">
-  </form>
-{% endblock %}
+  
+    <br>
+    List of Upcoming episodes that you can watch:-
+    <br>
+   <ul>
+    <script>
+      var showData = {{shows|safe}};
+      console.log(showData);
+      showData.hits.hits.forEach(function(d){
+        show = d._source;
+        document.write('<li> <a href="/searchSeries?seriesName='+show.showName+'">'+show.showName+'-S'+show.seasonNo+'E'+show.episodeNo+'    on '+show.airDate+'</a></li>');
+      });
+    </script>
+  </ul>
+  {% endblock %}
