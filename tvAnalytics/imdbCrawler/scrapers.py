@@ -46,3 +46,12 @@ def scrapeshow(showname):
 #scraper for validating the next episode
 #subprocess.call(['scrapy', 'crawl', 'nextepisode', '-a', 'show=the simpsons', '-o', 'next.json', '-t', 'json',])
 #scraper for obtaining the next episode data
+
+def scrapeNewEpisodes():
+	#scraper for collecting the show data
+	currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+	parentdir = os.path.dirname(currentdir)
+	crawlerdir = os.path.join(parentdir,"imdbCrawler")
+	print crawlerdir
+	subprocess.check_call(['scrapy', 'crawl', 'weekshows'])
+#uploadtoES(jsonfile)
